@@ -1,0 +1,60 @@
+<template>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td, th {
+      border: 1px solid #d6d9d3;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    ::content [slot="title"] {
+      text-align: center;
+    }
+  </style>
+  <content select="[slot='title']"></content>
+  <table></table>
+</template>
+
+<script src="./render.js"></script>
+<script>
+  const tableTemplate = document.currentScript.ownerDocument.querySelector('template')
+
+  class MyTable extends HTMLElement {
+    constructor() {
+      super()
+      this._rows = []
+    }
+
+    get rows() {
+      return this._rows
+    }
+
+    set rows(val) {
+      this._rows = val
+      render(this.shadowRoot.querySelector('table'), val, this)
+    }
+
+    connectedCallback() {
+      const shadowRoot = this.createShadowRoot()
+      const clone = document.importNode(tableTemplate.content, true)
+      shadowRoot.appendChild(clone)
+
+      render(shadowRoot.querySelector('table'), this.rows, this)
+    }
+
+    toggleRow(row) {
+      const tr = [].slice.call(this.shadowRoot.querySelectorAll('tr'))
+        .find(tr => tr.__data__ === row)
+      if (tr) {
+        const checkbox = tr.querySelector('input')
+        checkbox.checked = !checkbox.checked
+      }
+    }
+  }
+
+  customElements.define('my-table', MyTable)
+</script>

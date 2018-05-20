@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="import" href="my-table/table.html">
+  <link rel="import" href="my-select/select.html">
+  <style>
+    my-select {
+      margin: 20px;
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+  <my-table>
+    <div slot="title">
+      <h2>Table Title</h2>
+      Filter by name: <my-select></my-select>
+    </div>
+  </my-table>
+  <button>Add table rows</button>
+  <p>Selected names: <span>[]</span></p>
+</body>
+
+<script src="./table-data.js"></script>
+
+<script>
+  const mySelect = document.querySelector('my-select')
+  const myTable = document.querySelector('my-table')
+  const button = document.querySelector('button')
+  const span = document.querySelector('span')
+  const selectedNames = []
+
+  button.addEventListener('click', () => {
+    myTable.rows = tableRows
+    mySelect.options = tableRows.map(row => row.name)
+  })
+
+  myTable.addEventListener('select-change', ({ detail }) => {
+    const { row, checked } = detail
+    const name = row.name
+    const index = selectedNames.indexOf(name)
+    if (index > -1 && !checked) {
+      selectedNames.splice(index, 1)
+    } else if (index === -1 && checked) {
+      selectedNames.push(name)
+    }
+    span.textContent = `[${selectedNames.join(', ')}]`
+  })
+
+  mySelect.addEventListener('change', ({ detail }) => {
+    const name = detail.value
+    myTable.rows = tableRows.filter(row => row.name === name)
+    if (selectedNames.includes(name)) {
+      myTable.toggleRow(myTable.rows[0])
+    }
+  })
+</script>
+</html>

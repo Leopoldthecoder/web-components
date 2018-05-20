@@ -1,0 +1,69 @@
+<template>
+  <style>
+    div {
+      position: relative;
+      display: inline-block;
+    }
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      display: none;
+      position: absolute;
+      border: solid 1px #ddd;
+      background-color: #fff;
+      width: 100%;
+    }
+    li {
+      padding: 10px 0
+    }
+    li:hover {
+      background-color: #efefef;
+      cursor: pointer;
+    }
+  </style>
+  <div>
+    <input type="text">
+    <ul></ul>
+  </div>
+</template>
+
+<script src="./render.js"></script>
+<script>
+  const selectTemplate = document.currentScript.ownerDocument.querySelector('template')
+
+  class MySelect extends HTMLElement {
+    constructor() {
+      super()
+      this._options = []
+    }
+
+    get options() {
+      return this._options
+    }
+
+    set options(val) {
+      this._options = val
+      renderSelect(this.shadowRoot, val, this)
+    }
+
+    connectedCallback() {
+      const shadowRoot = this.createShadowRoot()
+      const clone = document.importNode(selectTemplate.content, true)
+      shadowRoot.appendChild(clone)
+
+      const input = shadowRoot.querySelector('input')
+      const ul = shadowRoot.querySelector('ul')
+      input.addEventListener('focus', () => {
+        ul.style.display = 'block'
+      })
+      input.addEventListener('blur', () => {
+        ul.style.display = 'none'
+      })
+
+      renderSelect(this.shadowRoot, this.options, this)
+    }
+  }
+
+  customElements.define('my-select', MySelect)
+</script>
